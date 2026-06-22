@@ -76,7 +76,7 @@ document.addEventListener('mousemove', e => {
     hoveredHighlight.style.left = left + 'px';
     hoveredHighlight.style.top = top + 'px';
     hoveredHighlight.style.width = ((characterWidth * 5 - 1) * scale) + 'px';
-    hoveredHighlight.style.height = ((characterHeight * 10 - 1) * scale) + 'px';
+    hoveredHighlight.style.height = ((characterHeight * 10 - 2) * scale) + 'px';
 });
 
 function getHoverPoint(clientX, clientY) {
@@ -227,15 +227,15 @@ function transformPoint(x, y) {
 
 function transformPointInverse(tx, ty) {
     const chw = characterWidth * 5 - 1;
-    const chh = characterHeight * 10 - 1;
+    const chh = characterHeight * 10 - 2;
 
     const chx = (tx % (chw + 7)) / chw;
     if (chx >= 1 || chx < 0) return null;
-    const chy = (ty % (chh + 13)) / chh;
+    const chy = (ty % (chh + 14)) / chh;
     if (chy >= 1 || chy < 0) return null;
 
     const px = Math.floor(tx / (chw + 7)) + chx;
-    const py = Math.floor(ty / (chh + 13)) + chy;
+    const py = Math.floor(ty / (chh + 14)) + chy;
 
     const x = Math.floor(px * characterWidth * 2);
     const y = Math.floor(py * characterHeight * 4);
