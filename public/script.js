@@ -8,6 +8,8 @@ let order = [
 ];
 
 const previewCanvas = document.querySelector('#preview');
+const hoveredInfo = document.querySelector('#hovered_info');
+const hoveredHighlight = document.querySelector('#hovered_highlight');
 
 let chars = {};
 let font = false;
@@ -47,6 +49,53 @@ document.querySelector('#height').addEventListener('change', e => {
     }
 });
 
+document.addEventListener('mousemove', e => {
+    const point = getHoverPoint(e.clientX, e.clientY);
+    const char = point ? getCharAt(point[0], point[1]) : null;
+
+    hoveredInfo.style.display = char ? 'block' : 'none';
+    hoveredInfo.innerHTML = char;
+
+    hoveredHighlight.style.display = hoveredInfo.style.display;
+
+    if (!char) return;
+    const rect = previewCanvas.getBoundingClientRect();
+    const scale = rect.width / previewCanvas.width;
+
+    const [cx, cy] = transformPoint(
+        Math.floor(point[0] / (characterWidth * 2)) * (characterWidth * 2),
+        Math.floor(point[1] / (characterHeight * 4)) * (characterHeight * 4)
+    );
+
+    const left = (cx * scale + rect.left);
+    const top = (cy * scale + rect.top);
+
+    hoveredInfo.style.left = (left - 30) + 'px';
+    hoveredInfo.style.top = (top - 30) + 'px';
+
+    hoveredHighlight.style.left = left + 'px';
+    hoveredHighlight.style.top = top + 'px';
+    hoveredHighlight.style.width = ((characterWidth * 5 - 1) * scale) + 'px';
+    hoveredHighlight.style.height = ((characterHeight * 10 - 1) * scale) + 'px';
+});
+
+function getHoverPoint(clientX, clientY) {
+    if (!font) return null;
+
+    const rect = previewCanvas.getBoundingClientRect();
+
+    const mx = (clientX - rect.left) / rect.width;
+    const my = (clientY - rect.top) / rect.height;
+
+    if (mx < 0 || mx > 1 || my < 0 || my > 1)
+        return null;
+
+    const tx = Math.floor(mx * previewCanvas.width);
+    const ty = Math.floor(my * previewCanvas.height);
+
+    return transformPointInverse(tx, ty);
+}
+
 async function loadImage(imageUrl) {
     imageData = await getImageData(imageUrl);
     URL.revokeObjectURL(imageUrl);
@@ -60,7 +109,9 @@ function processFont() {
     };
     const data = imageData.data;
 
-    const [previewWidth, previewHeight] = transformPoint(imageData.width, imageData.height);
+    let [previewWidth, previewHeight] = transformPoint(imageData.width - 1, imageData.height - 1);
+    previewWidth += 2;
+    previewHeight += 2;
     previewCanvas.width = previewWidth;
     previewCanvas.height = previewHeight;
     const ctx = previewCanvas.getContext('2d');
@@ -172,6 +223,24 @@ function transformPoint(x, y) {
     ty += Math.floor(y / (characterHeight * 4)) * 12;
 
     return [tx, ty];
+}
+
+function transformPointInverse(tx, ty) {
+    const chw = characterWidth * 5 - 1;
+    const chh = characterHeight * 10 - 1;
+
+    const chx = (tx % (chw + 7)) / chw;
+    if (chx >= 1 || chx < 0) return null;
+    const chy = (ty % (chh + 13)) / chh;
+    if (chy >= 1 || chy < 0) return null;
+
+    const px = Math.floor(tx / (chw + 7)) + chx;
+    const py = Math.floor(ty / (chh + 13)) + chy;
+
+    const x = Math.floor(px * characterWidth * 2);
+    const y = Math.floor(py * characterHeight * 4);
+
+    return [x, y];
 }
 
 function getIndex(x, y, width) {

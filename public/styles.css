@@ -5,6 +5,7 @@
   --text: #cad3f5;
   --lavender: #b7bdf8;
   --blue: #8aadf4;
+  --rosewater: #f4dbd6;
 
   --shadow: rgb(from var(--crust) r g b / 50%);
 
@@ -22,7 +23,7 @@ html, body {
   color: var(--text);
 }
 
-header, div {
+header, #preview_container {
   margin: 16px;
   padding: 16px;
   border-radius: 8px;
@@ -35,14 +36,36 @@ header {
   background-color: var(--crust);
 }
 
-div {
+#preview_container {
   border-bottom: 4px solid var(--lavender);
   background-color: var(--mantle);
 }
-
 
 canvas {
   image-rendering: pixelated;
   filter: var(--text-filter);
   width: 100%;
+}
+
+#hovered_info {
+  position: absolute;
+  background-color: var(--crust);
+  border-radius: 8px;
+  border: 4px solid var(--rosewater);
+  box-shadow: 0 0 10px var(--shadow);
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  font-weight: bolder;
+  font-size: larger;
+  user-select: none;
+}
+
+#hovered_highlight {
+  position: absolute;
+  outline: 4px solid var(--rosewater);
+  outline-offset: 4px;
+  z-index: 999;
 }
